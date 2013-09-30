@@ -16,7 +16,7 @@ task :build do
 end
 
 task :test do
-  ruby "test/rp5_test.rb"
+  `ruby "test/rp5_test.rb"`
 end
 
 task default: [:build, :test]
