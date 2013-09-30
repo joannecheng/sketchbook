@@ -10,14 +10,14 @@ module Sketchbook
         exit
       end
 
-      @name = sketch_file.camelize
+      @name = sketch_name.camelize
       @file_name = sketch_file.underscore
       @title = sketch_file.titleize
 
       template_name = 'blank_sketch.rb.erb'
       template = File.new("#{SKETCHBOOK_ROOT}/lib/templates/create/blank_sketch.rb.erb")
       rendered = render_erb_from_string_with_binding(template.read, binding)
-      full_path = File.join(Dir.pwd, "#{@file_name}.rb")
+      full_path = File.join(Dir.pwd, "#{@file_name}")
       File.open(full_path, 'w').write(rendered)
 
       puts "Created new sketch at #{sketch_name}.rb"
