@@ -1,0 +1,61 @@
+require 'rake/clean'
+
+JRUBY_VERSION = "1.7.4"
+PROCESSING_VERSION = "2.0.3"
+JRUBY_FILE = "jruby-complete-#{JRUBY_VERSION}.jar"
+PROCESSING_FILE = "processing-#{PROCESSING_VERSION}-macosx.zip"
+
+CLOBBER.include(PROCESSING_FILE, JRUBY_FILE)
+
+desc "download, sign and copy to ruby-processing"
+task :default => [:download, :copy_ruby, :copy_processing]
+
+desc "download Processing & JRuby upstream sources"
+task :download => [PROCESSING_FILE, JRUBY_FILE]
+
+# taking this version is because this is the smallest build available with all the librairies we need
+file PROCESSING_FILE do
+  sh "wget https://processing.googlecode.com/files/#{PROCESSING_FILE}"
+  check_sha1(PROCESSING_FILE, "f0126451da435f90b820a783c78bbde16739c5d2")
+end
+
+file JRUBY_FILE do
+  sh "wget http://jruby.org.s3.amazonaws.com/downloads/#{JRUBY_VERSION}/#{JRUBY_FILE}"
+  check_sha1(JRUBY_FILE, 'a117e28e715184074980d6228962b9fb6b5607ac')
+end
+
+directory "../lib/core"
+
+desc "copy ruby"
+task :copy_ruby do
+  sh "cp -v #{JRUBY_FILE} ../lib/ruby/jruby-complete.jar"
+end
+
+desc "copy libs & jars"
+task :copy_processing => ["../lib/core"] do
+  processing_zip = File.expand_path(PROCESSING_FILE)
+  print processing_zip
+  sh "cd ../lib/core && unzip -qoj #{processing_zip} processing-#{PROCESSING_VERSION}/lib/core.jar"
+
+  dirs = %w{dxf javascript minim net opengl pdf serial video}
+  Dir.chdir("../library/") do
+    sh "rm -rf processing-#{PROCESSING_VERSION}/ #{dirs.join(" ")}"
+    inside_zip_dirs = dirs.collect { |d| "processing-#{PROCESSING_VERSION}/modes/java/libraries/#{d}/library/*" }
+    sh "unzip -q #{processing_zip} #{inside_zip_dirs.join(" ")}"
+    sh "mv processing-#{PROCESSING_VERSION}/modes/java/libraries/* ."
+    sh "rm -r processing-#{PROCESSING_VERSION}/"
+  end
+end
+
+def check_sha1(filename, expected_hash)
+  require "openssl"
+  sha1 = OpenSSL::Digest::SHA1.new
+  File.open(filename, "r") do |f|
+    while buf = f.read(4096)
+      sha1.update(buf)
+    end
+  end
+  if sha1.hexdigest != expected_hash
+    raise "bad sha1 checksum for #{filename} (expected #{expected_hash} got #{sha1.hexdigest})"
+  end
+end
