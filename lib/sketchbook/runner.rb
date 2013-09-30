@@ -22,7 +22,7 @@ module Sketchbook
     end
 
     def create(sketch_name, args)
-      puts "Created new sketch at #{sketch_name}.rb"
+      Sketchbook::Creator.new.create!(sketch_name, args)
     end
   end
 end

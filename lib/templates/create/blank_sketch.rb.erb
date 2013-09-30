@@ -1,0 +1,15 @@
+# <%= @title %>
+
+class <%= @name %> < Processing::App
+
+  def setup
+    
+  end
+  
+  def draw
+  
+  end
+  
+end
+
+<%= @name %>.new :title => "<%= @title %>"<%= ", :width => #{@width}" if @with_size %><%= ", :height => #{@height}" if @with_size %>

@@ -3,6 +3,9 @@ unless defined? SKETCHBOOK_ROOT
   SKETCHBOOK_ROOT = File.expand_path(File.dirname(__FILE__) + "/../")
 end
 
+require 'sketchbook/helpers'
+
 module Sketchbook
   autoload :Runner, 'sketchbook/runner'
+  autoload :Creator, 'sketchbook/creator'
 end

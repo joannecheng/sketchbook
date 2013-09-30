@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-
 file = __FILE__
 if test(?l, file)
   require "pathname"
